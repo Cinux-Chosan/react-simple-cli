@@ -1,5 +1,6 @@
+import 'regenerator-runtime'
 import React from 'react'
-import ReactDom from 'react-dom'
+import ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
 import { HashRouter as Router } from 'react-router-dom'
 import MapRoutes from './routes/mapRoutes'
