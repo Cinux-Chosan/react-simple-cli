@@ -1,0 +1,43 @@
+import React, { Component } from 'react'
+{{#if connect}}
+{{!-- 如果需要 redux connect，则引入 --}}
+import { connect } from 'react-redux'
+{{/if}}
+import styles from './style.less'
+
+{{#if connect}}
+export class {{capitalize (getPathName name)}} extends Component {
+    constructor(props) {
+        super(props)
+    }
+
+    render() {
+        return null
+    }
+}
+
+const mapStateToProps = () => {
+    return {
+
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return  {
+
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)({{name}})
+
+{{else}}
+export default class extends Component {
+    constructor(props) {
+        super(props)
+    }
+
+    render() {
+        return null
+    }
+}
+{{/if}}
