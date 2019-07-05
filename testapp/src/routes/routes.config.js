@@ -12,9 +12,10 @@ import App from '@pages/home'
 // type: redirect 代表 React-Router#Redirect
 // type: undeinfed（无 type），代表页面，必须有 path 和 component 属性，用于 React-Router#Route
 
-export default {
-  path: 'zhangjianjun',
-  component: App,
+export default {}
+//  {
+//   path: 'zhangjianjun',
+  // component: App,
   // routes: [
   //   {
   //     type: 'switch',
@@ -63,4 +64,4 @@ export default {
     //   ]
     // }
   // ]
-}
+// }

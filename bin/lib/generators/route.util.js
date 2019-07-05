@@ -21,27 +21,31 @@ const findRoute = (routeName, node) => {
 
 const createRouteNode = (type, options = {}) => {
     let node = null
-    const { from = '', to = '', path = ''}
+    const { from = '', to = '', path = '', componentPath = '' } = options
     switch (type) {
         case 'redirect':
             node = t.objectExpression([
-                t.objectProperty('type', t.stringLiteral('redirect')),
-                t.objectProperty('from', t.stringLiteral(from)),
-                t.objectProperty('to', t.stringLiteral(to))
+                t.objectProperty(t.identifier('type'), t.stringLiteral('redirect')),
+                t.objectProperty(t.identifier('from'), t.stringLiteral(from)),
+                t.objectProperty(t.identifier('to'), t.stringLiteral(to))
             ])
             break
         case 'switch':
             node = t.objectExpression([
-                t.objectProperty('type', t.stringLiteral('switch')),
-                t.objectProperty('routes', t.arrayExpression()),
+                t.objectProperty(t.identifier('type'), t.stringLiteral('switch')),
+                t.objectProperty(t.identifier('routes'), t.arrayExpression()),
             ])
             break
+        case 'route':
         default:
+            // create route
             node = t.objectExpression([
-                t.objectProperty('path', t.stringLiteral(path)),
-                t.objectProperty('routes', t.arrayExpression()),
-                // t.objectProperty('component', t.arrayExpression()),
-                
+                t.objectProperty(t.identifier('path'), t.stringLiteral(path)),
+                t.objectProperty(t.identifier('routes'), t.arrayExpression()),
+                t.objectProperty(t.identifier('component'), t.arrowFunctionExpression([], t.callExpression(
+                    t.identifier('import'),
+                    [t.stringLiteral(componentPath)]
+                ))),
             ])
             break
     }
