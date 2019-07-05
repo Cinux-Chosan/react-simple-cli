@@ -7,8 +7,14 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "test type define",
+            "program": "${workspaceFolder}/bin/lib/generators/type.define.js",
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "new app",
-            "program": "${workspaceFolder}/bin/src.js",
+            "program": "${workspaceFolder}/bin/cli.js",
             "args": [
                 "new",
                 "myapp"
@@ -18,7 +24,7 @@
             "type": "node",
             "request": "launch",
             "name": "g component",
-            "program": "${workspaceFolder}/bin/src.js",
+            "program": "${workspaceFolder}/bin/cli.js",
             "args": [
                 "g",
                 "component",
@@ -30,7 +36,8 @@
             "type": "node",
             "request": "launch",
             "name": "g route",
-            "program": "${workspaceFolder}/bin/src.js",
+            "program": "${workspaceFolder}/bin/cli.js",
+            "cwd": "${workspaceFolder}/testapp",
             "args": [
                 "g",
                 "route",

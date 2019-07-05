@@ -1,6 +1,7 @@
 const fs = require('fs-extra')
 const path = require('path')
 const Handlebars = require('./handlebar')
+const babelParser = require('@babel/parser')
 
 function getSource(fileName, sourceDir = path.resolve(__dirname, '../templates')) {
     return fs.readFileSync(path.resolve(sourceDir, fileName), 'utf8').toString()
@@ -15,8 +16,13 @@ function compileToDest(fileName, argv, destPath) {
     fs.outputFile(destPath, result)
 }
 
+const parseCode = (code, options) => {
+    return babelParser.parse(code, options)
+}
+
 module.exports = {
     getSource,
     getCompileResult,
-    compileToDest
+    compileToDest,
+    parseCode
 }

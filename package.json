@@ -6,7 +6,12 @@
     "ssr": "./bin/cli.js"
   },
   "scripts": {},
-  "devDependencies": {
+  "devDependencies": {},
+  "dependencies": {
+    "@babel/generator": "^7.4.4",
+    "@babel/parser": "^7.4.5",
+    "@babel/traverse": "^7.4.5",
+    "@babel/types": "^7.4.4",
     "fs-extra": "^8.1.0",
     "glob": "^7.1.4",
     "handlebars": "^4.1.2",

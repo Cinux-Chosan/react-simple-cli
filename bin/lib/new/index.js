@@ -14,8 +14,10 @@ module.exports = function (argv) {
             const packgeJson = fs.readJsonSync(packagePath)
             packgeJson.name = dest
             fs.writeJSONSync(packagePath, packgeJson, { spaces: '\t' })
-            fs.remove(path.resolve(dest, '.git/'))
-            console.log(`初始化 ${dest} 成功`)
+            fs.remove(path.resolve(dest, '.git/'), (err) => {
+                if (!err) childProcess.spawn('git', ['init']);
+                console.log(`初始化 ${dest} 成功`)
+            })
         }
     })
 }
