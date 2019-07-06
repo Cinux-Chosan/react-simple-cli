@@ -1,7 +1,6 @@
 const path = require('path')
 const traverse = require('@babel/traverse').default
 const t = require('@babel/types')
-const generator = require('@babel/generator').default
 const { getSource, parseCode } = require('../utils')
 const { findRoute, createRouteNode } = require('./route.util')
 
@@ -24,7 +23,7 @@ class RouteProcesser {
         this.code = code
         this._parse()
         this._walk()
-        this._checkTopRoute()
+        // this._checkTopRoute()
     }
 
     // 将代码转成 ast
@@ -53,6 +52,7 @@ class RouteProcesser {
     add(routeName = '', componentPath) {
         const { routesMapNode } = this
         this._add(routeName.split('/'), routesMapNode, componentPath)
+        return this.routesMapNode
     }
 
     _checkEmptyObject(objNode) {
@@ -78,6 +78,35 @@ class RouteProcesser {
         }
     }
 
+    checkAndGetRoutes(node) {
+        let routesPropNode = this._getObjNodeProperty(node, 'routes')
+        if (t.isArrayExpression(routesPropNode.value)) {
+            // 
+        } else {
+            routesPropNode = t.objectProperty(t.identifier('routes'), t.arrayExpression())
+            node.properties.push(routesPropNode)
+        }
+        return routesPropNode
+    }
+
+    // 如果当前路由 path 匹配，则返回当前结点，如果当前节点为 switch 节点，则检查其 routes 中的节点
+    findMatchRoute(node, path) {
+        const typePropNode = this._getObjNodeProperty(node, 'type')
+        switch (typePropNode.value.value) {
+            case 'switch':
+                const routesPropNode = this.checkAndGetRoutes(node, 'routes')
+                return routesPropNode.value.elements.find(route => this.findMatchRoute(route, path))
+            case 'redirect':
+                break
+            case 'route':
+            default:
+                const pathPropNode = this._getObjNodeProperty(node, 'path')
+                if (pathPropNode.value.value === path) {
+                    return node
+                }
+        }
+    }
+
     _getObjNodeProperty(node, propName) {
         return node.properties.find(({ key }) => {
             return t.isIdentifier(key, { name: propName })
@@ -88,17 +117,37 @@ class RouteProcesser {
         const parentName = routeParts[0]
         const children = routeParts.slice(1)
         // 寻找第一层路由
-        let [parentNode] = this._findRoute(parentName, rootNode)
+        let parentNode = this.findMatchRoute(rootNode, parentName)
         if (!parentNode) {
             // 没有找到父级，创建一个 switch 并将路由放进 switch 的 routes 中
-            const switchNode = createRouteNode('switch')
-            const routeNode = createRouteNode('route', { path: parent, componentPath })
-            const switchRoutesNode = switchNode.properties.find(prop => prop.key.name === 'routes')
-            switchRoutesNode.elements.push(routeNode)
-            rootNode.push(switchNode)
+            const rootNodeType = this._getObjNodeProperty(rootNode, 'type').value.value
+            // 如果 rootNode 是 switch 类型，则在其 routes 中添加新建项
+            switch (rootNodeType) {
+                case 'switch': {
+                    const routeNode = createRouteNode('route', { path: parentName, componentPath })
+                    const switchRoutesNode = this.checkAndGetRoutes(rootNode)
+                    switchRoutesNode.value.elements.push(routeNode)
+                    parentNode = routeNode
+                    break
+                }
+                case 'redirect':
+                    break
+                // 如果 rootNode 是 route 类型，则在 rootNode 的 routes 中新建一项
+                default: {
+                    const switchNode = createRouteNode('switch')
+                    const routeNode = createRouteNode('route', { path: parentName, componentPath })
+                    const switchRoutesNode = this.checkAndGetRoutes(switchNode)
+                    const rootRoutesNode = this.checkAndGetRoutes(rootNode)
+                    switchRoutesNode.value.elements.push(routeNode)
+                    rootRoutesNode.value.elements.push(switchNode)
+                    parentNode = routeNode
+                    break;
+                }
+            }
+
         }
         if (children.length) {
-            this._add(children)
+            this._add(children, parentNode, componentPath)
         }
     }
 

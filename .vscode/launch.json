@@ -41,7 +41,20 @@
             "args": [
                 "g",
                 "route",
-                "--name=zhangjianjun/bbbbb",
+                "--name=zhangjianjun/bbbbb/ccc/ddd/eee",
+                "--connect=true"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "g subroute",
+            "program": "${workspaceFolder}/bin/cli.js",
+            "cwd": "${workspaceFolder}/testapp",
+            "args": [
+                "g",
+                "route",
+                "--name=zhangjianjun/bbbbb/eeeeee",
                 "--connect=true"
             ]
         }

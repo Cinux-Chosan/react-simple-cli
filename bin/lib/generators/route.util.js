@@ -40,6 +40,7 @@ const createRouteNode = (type, options = {}) => {
         default:
             // create route
             node = t.objectExpression([
+                t.objectProperty(t.identifier('type'), t.stringLiteral('route')),
                 t.objectProperty(t.identifier('path'), t.stringLiteral(path)),
                 t.objectProperty(t.identifier('routes'), t.arrayExpression()),
                 t.objectProperty(t.identifier('component'), t.arrowFunctionExpression([], t.callExpression(
