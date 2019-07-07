@@ -157,8 +157,6 @@ module.exports = class RouteProcessor {
             parentRouteNode = this._generateRoutesAndAssets(rootNode, parentPath, parentRouteName)
         }
 
-        console.log(generator(this.ast).code)
-
         if (children.length) {
             const subRoutes = this._getRoutes(parentRouteNode)
             const isSubRoutesAddSuccess = subRoutes.some(route => this._add(children, route, path.join(parentPath, parentRouteName)))
