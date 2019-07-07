@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 {{!-- 如果需要 redux connect，则引入 --}}
 import { connect } from 'react-redux'
 {{/if}}
-import styles from './style.less'
+// import styles from './style.less'
 
 {{#if connect}}
 export class {{capitalize (getPathName name)}} extends Component {
@@ -24,11 +24,11 @@ const mapStateToProps = () => {
 
 const mapDispatchToProps = dispatch => {
     return  {
-
+        dispatch
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)({{name}})
+export default connect(mapStateToProps, mapDispatchToProps)({{capitalize (getPathName name)}})
 
 {{else}}
 export default class extends Component {

@@ -21,7 +21,7 @@ const findRoute = (routeName, node) => {
 
 const createRouteNode = (type, options = {}) => {
     let node = null
-    const { from = '', to = '', path = '', componentPath = '' } = options
+    const { from = '', to = '', path = '', assetsPath = '' } = options
     switch (type) {
         case 'redirect':
             node = t.objectExpression([
@@ -44,7 +44,7 @@ const createRouteNode = (type, options = {}) => {
                 t.objectProperty(t.identifier('path'), t.stringLiteral(path)),
                 t.objectProperty(t.identifier('component'), t.arrowFunctionExpression([], t.callExpression(
                     t.identifier('import'),
-                    [t.stringLiteral(componentPath)]
+                    [t.stringLiteral(assetsPath)]
                 ))),
                 t.objectProperty(t.identifier('routes'), t.arrayExpression()),
             ])

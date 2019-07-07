@@ -41,7 +41,7 @@
             "args": [
                 "g",
                 "route",
-                "--name=zhangjianjun/bbbbb/ccc/ddd/eee",
+                "--name=aaa/b2/c2/d2",
                 "--connect=true"
             ]
         },

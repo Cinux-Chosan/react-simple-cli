@@ -9,6 +9,7 @@ import React from 'react'
 import { join } from 'path'
 import { Route, Switch, Redirect } from 'react-router-dom'
 import routesConf from './routes.config'
+import Loadable from './loadable'
 
 /**
  * 将 routesConf 映射为 React 路由
@@ -17,12 +18,12 @@ import routesConf from './routes.config'
  * @param {string} [parentPath='']
  * @returns
  */
-function mapRoutes(routes, parentPath = '') {
+function mapRoutes(routes, parentPath = '/') {
   if (!routes) {
     return null
   }
   return routes.map((route, index) => {
-    const {
+    let {
       component: Component,
       path = '',
       type,
@@ -50,6 +51,7 @@ function mapRoutes(routes, parentPath = '') {
 
       // React-Router#Route
       default: {
+        Component = Loadable(Component)
         routeComponent = (
           <Route
             key={index}
