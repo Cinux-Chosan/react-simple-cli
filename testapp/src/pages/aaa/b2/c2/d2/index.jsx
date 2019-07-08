@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 // import styles from './style.less'
 
-export class Aaa extends Component {
+export class D2 extends Component {
     constructor(props) {
         super(props)
     }
@@ -24,5 +24,5 @@ const mapDispatchToProps = dispatch => {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Aaa)
+export default connect(mapStateToProps, mapDispatchToProps)(D2)
 

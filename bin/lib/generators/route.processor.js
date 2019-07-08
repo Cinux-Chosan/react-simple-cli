@@ -3,8 +3,8 @@ const slash = require('slash')
 const traverse = require('@babel/traverse').default
 const generator = require('@babel/generator').default
 const t = require('@babel/types')
-const { getSource, parseCode, compileToDest } = require('../utils')
-const { findRoute, createRouteNode } = require('./route.util')
+const { parseCode, compileToDest } = require('../utils')
+const { createRouteNode } = require('./route.util')
 
 module.exports = class RouteProcessor {
     constructor(code, argv) {
@@ -27,16 +27,29 @@ module.exports = class RouteProcessor {
         traverse(ast, {
             ExportDefaultDeclaration: (path) => {
                 const declarationPath = path.get('declaration')
+                let routeMapNode = null
                 if (declarationPath.isIdentifier()) {
                     const id = declarationPath.node.name
-                    this.routeMapNode = path.scope.bindings[id].path.node.init
+                    routeMapNode = path.scope.bindings[id].path.node.init
+                    if (!this._getPropertyNode(routeMapNode, 'type')) {
+                        routeMapNode = createRouteNode('switch')
+                        path.scope.bindings[id].path.replaceWith(t.variableDeclarator(t.identifier(id), routeMapNode))
+                    }
                 } else if (declarationPath.isObjectExpression()) {
-                    this.routeMapNode = declarationPath.node
+                    routeMapNode = declarationPath.node
+                    if (!this._getPropertyNode(routeMapNode, 'type')) {
+                        routeMapNode = createRouteNode('switch')
+                        declarationPath.replaceWith(routeMapNode)
+                    }
                 }
+                this.routeMapNode = routeMapNode
             }
         })
     }
 
+    _isEmptyObject(node) {
+        return node && node.properties && node.properties.length
+    }
 
     add(routeName = '', componentPath = '') {
         const { routeMapNode } = this
@@ -76,7 +89,7 @@ module.exports = class RouteProcessor {
         }
     }
 
-    _createRoutesNode() {
+    _createRoutesArray() {
         return t.arrayExpression()
     }
 
@@ -87,8 +100,9 @@ module.exports = class RouteProcessor {
     _getRoutes(node) {
         let routes = this._getPropertyNode(node, 'routes')
         if (!(routes && t.isArrayExpression(routes.value))) {
-            routes = this._createRoutesNode()
-            node.properties.push(this._createObjectProperty(routes))
+            const routesArray = this._createRoutesArray()
+            routes = this._createObjectProperty(routesArray)
+            node.properties.push(routes)
         }
         return routes.value.elements
     }
@@ -106,7 +120,6 @@ module.exports = class RouteProcessor {
                 return routes.find(route => this._getNodeType(route) === 'switch')
         }
     }
-
 
     _getPropertyNode(node, propName) {
         return node.properties.find(prop => prop.key.name === propName)

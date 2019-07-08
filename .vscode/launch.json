@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         {
             "type": "node",
             "request": "launch",
@@ -48,9 +49,22 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "g subroute",
+            "name": "g myfirst route",
             "program": "${workspaceFolder}/bin/cli.js",
             "cwd": "${workspaceFolder}/testapp",
+            "args": [
+                "g",
+                "route",
+                "--name=myFirst",
+                "--connect=true"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "g subroute",
+            "program": "${workspaceFolder}/bin/cli.js",
+            "cwd": "${workspaceFolder}/testapp/src",
             "args": [
                 "g",
                 "route",

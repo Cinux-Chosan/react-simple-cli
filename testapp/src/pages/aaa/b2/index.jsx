@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 // import styles from './style.less'
 
-export default class extends Component {
+export class B2 extends Component {
     constructor(props) {
         super(props)
     }
@@ -10,3 +11,18 @@ export default class extends Component {
         return <>{this.props.yield}</>
     }
 }
+
+const mapStateToProps = () => {
+    return {
+
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return  {
+        dispatch
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(B2)
+
