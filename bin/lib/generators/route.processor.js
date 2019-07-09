@@ -57,21 +57,34 @@ module.exports = class RouteProcessor {
         return this.ast
     }
 
+    _keepFind(arr, cb) {
+        for(let index = 0, len = arr.length; index < len; ++ index) {
+            const item = arr[index] 
+            const result = cb(item, index)
+            if (result) {
+                return result
+            }
+        }
+    }
 
     // 找第一级匹配的路由，遇到 switch 则递归到第一层非 switch
     _findMatchRoute(node, pathName) {
-        const nodeType = this._getNodeType(node)  // 待实现
+        const nodeType = this._getNodeType(node)
+        const routes = this._getRoutes(node)
+        const nodePath = this._getNodePath(node)
         switch (nodeType) {
             case 'switch':
                 // 递归
-                const routes = this._getRoutes(node)
-                return routes.find(route => this._findMatchRoute(route, pathName))
+                return this._keepFind(routes, (route) => this._findMatchRoute(route, pathName))
             case 'redirect':
                 return
             case 'route':
             default:
-                const nodePath = this._getNodePath(node)  // 待实现
-                return nodePath === pathName
+                if (nodePath === '/') {
+                    return this._keepFind(routes, (route) => this._findMatchRoute(route, pathName))
+                } else if (nodePath === pathName) {
+                    return node
+                }
         }
     }
 
@@ -80,7 +93,7 @@ module.exports = class RouteProcessor {
         if (t.isObjectProperty(nodePath)) {
             return nodePath.value.value
         }
-    } 
+    }
 
     _getNodeType(node) {
         const typePropNode = this._getPropertyNode(node, 'type')
@@ -107,17 +120,20 @@ module.exports = class RouteProcessor {
         return routes.value.elements
     }
 
-    _getSwitch(node) {
+    _getSubSwitchOrRoot(node) {
         const nodeType = this._getNodeType(node)
-        switch(nodeType) {
+        const routes = this._getRoutes(node)
+        switch (nodeType) {
             case 'switch':
                 return node
             case 'redirect':
                 return
             case 'route':
-            default: 
-                const routes = this._getRoutes(node)
-                return routes.find(route => this._getNodeType(route) === 'switch')
+            default:
+                return routes.find(route => {
+                    const nodePath = this._getNodePath(route)
+                    return nodePath === '/' || this._getNodeType(route) === 'switch'
+                })
         }
     }
 
@@ -137,7 +153,7 @@ module.exports = class RouteProcessor {
 
     _addNodeToSwitch(parentNode, node) {
         // 查找 switch 节点
-        let switchNode = this._getSwitch(parentNode)
+        let switchNode = this._getSubSwitchOrRoot(parentNode)
         if (!switchNode) {
             switchNode = createRouteNode('switch')
             const parentRoutesNode = this._getRoutes(parentNode)
@@ -148,15 +164,15 @@ module.exports = class RouteProcessor {
     }
 
     _generateRoutesAndAssets(rootNode, parentPath, routePathName) {
-       // 创建 pages 目录中的资源文件，可抽成方法，供 label 处使用
-       const pageRootPath = './src/pages'
-       const routeMapRootPath = './src/routes'
-       const rel =  path.relative(routeMapRootPath, pageRootPath)
-       const assetsPath = path.join(pageRootPath, parentPath, routePathName)
-       this._createRouteAssets(assetsPath, { name: routePathName })
-       const parentRouteNode = createRouteNode('route', { assetsPath: slash(path.join(rel, parentPath, routePathName)) , path: routePathName })
-       this._addNodeToSwitch(rootNode, parentRouteNode)
-       return parentRouteNode
+        // 创建 pages 目录中的资源文件，可抽成方法，供 label 处使用
+        const pageRootPath = './src/pages'
+        const routeMapRootPath = './src/routes'
+        const rel = path.relative(routeMapRootPath, pageRootPath)
+        const assetsPath = path.join(pageRootPath, parentPath, routePathName)
+        this._createRouteAssets(assetsPath, { name: routePathName })
+        const parentRouteNode = createRouteNode('route', { assetsPath: slash(path.join(rel, parentPath, routePathName)), path: routePathName })
+        this._addNodeToSwitch(rootNode, parentRouteNode)
+        return parentRouteNode
     }
 
     _add(routeParts, rootNode, parentPath = '') {
@@ -176,7 +192,7 @@ module.exports = class RouteProcessor {
             if (!isSubRoutesAddSuccess) {
                 children.reduce((parentNode, childPathName, index) => {
                     const parentPathName = path.join(parentPath, parentRouteName, children.slice(0, index).join('/'))
-                    return this._generateRoutesAndAssets(parentNode, parentPathName , childPathName)
+                    return this._generateRoutesAndAssets(parentNode, parentPathName, childPathName)
                 }, parentRouteNode)
             }
         }

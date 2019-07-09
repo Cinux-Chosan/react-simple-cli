@@ -64,11 +64,11 @@
             "request": "launch",
             "name": "g subroute",
             "program": "${workspaceFolder}/bin/cli.js",
-            "cwd": "${workspaceFolder}/testapp/src",
+            "cwd": "${workspaceFolder}/testapp",
             "args": [
                 "g",
                 "route",
-                "--name=zhangjianjun/bbbbb/eeeeee",
+                "--name=z/b/myFirst/3",
                 "--connect=true"
             ]
         }
