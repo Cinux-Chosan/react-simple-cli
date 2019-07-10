@@ -51,7 +51,7 @@ function initGit(dest) {
     return new Promise((res, rej) => {
         fs.remove(path.resolve(dest, '.git/'), (err) => {
             if (!err) {
-                childProcess.spawn('git', ['init'])
+                childProcess.spawn('git', ['init'], { cwd: path.relative(process.cwd(), dest) })
                 res(err)
             } else {
                 rej()
