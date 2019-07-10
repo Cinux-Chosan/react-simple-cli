@@ -1,9 +1,9 @@
 const fs = require('fs-extra')
+const ora = require('ora')
 const path = require('path')
 const chalk = require('chalk')
-const Handlebars = require('./handlebar')
 const babelParser = require('@babel/parser')
-const ora = require('ora')
+const Handlebars = require('./handlebar')
 
 function getSource(fileName, sourceDir = path.resolve(__dirname, '../templates')) {
     return fs.readFileSync(path.resolve(sourceDir, fileName), 'utf8').toString()
@@ -13,16 +13,16 @@ function writeSource(fileName, source) {
     fs.outputFile(fileName, source)
 }
 
-function getCompileResult(fileName, argv) {
-    return Handlebars.compile(getSource(fileName))(argv)
+function getCompileResult(fileName, context) {
+    return Handlebars.compile(getSource(fileName))(context)
 }
 
 function removePath(path) {
     fs.remove(path)
 }
 
-function compileToDest(fileName, argv, destPath) {
-    const result = getCompileResult(fileName, argv)
+function compileToDest(fileName, context, destPath) {
+    const result = getCompileResult(fileName, context)
     return fs.outputFile(destPath, result)
 }
 
@@ -32,33 +32,46 @@ const parseCode = (code, options) => {
 
 const startOra = msg => ora(chalk.red(msg)).start();
 
+const TextColor = {
+    succeed: (msg) => chalk.green(msg),
+    error: (msg) => chalk.red(msg),
+    info: (msg) => chalk.whiteBright(msg), 
+    warn: (msg) => chalk.yellow(msg)
+}
+
 class Logger {
     warn(msg) {
-        console.log(chalk.yellow(`Warning: ${msg}\n`)) 
+        console.log(TextColor.warn(`Warning: ${msg}`)) 
     }
     error(msg) {
-        console.log(chalk.red(`Error: ${msg}\n`))
+        console.log(TextColor.error(`Error: ${msg}`))
     }
     info(msg) {
-        console.log(chalk.whiteBright(`Info: ${msg}\n`))
+        console.log(TextColor.info(`Info: ${msg}`))
     }
 }
 
-class TextColor {
+class Ora {
+    constructor(msg) {
+        this.ora = ora(TextColor.info(msg)).start()
+    }
+
+    info(msg) {
+        this.ora.info(TextColor.info(msg))
+    }
+
     succeed(msg) {
-        return chalk.green(msg)
+        this.ora.succeed(TextColor.succeed(msg))
     }
-    error(msg) {
-        return chalk.red(msg)
-    }
-    info(msg) {
-        return chalk.whiteBright(msg)
-    } 
+
     warn(msg) {
-        return chalk.yellow(msg)
+        this.ora.warn(TextColor.warn(msg))
+    }
+
+    error(msg) {
+        this.ora.error(TextColor.error(msg))
     }
 }
-
 
 module.exports = {
     getSource,
@@ -69,6 +82,7 @@ module.exports = {
     startOra,
     removePath,
     Logger,
-    textColor: new TextColor,
+    Ora,
+    TextColor,
     logger: new Logger
 }

@@ -9,8 +9,101 @@ import React, { lazy } from 'react'; // type: switch 则其 routes 中的路由�
 // type: undeinfed（无 type），代表页面，必须有 path 和 component 属性，用于 React-Router#Route
 
 const route = {
-  type: "route",
+  type: 'route',
+  component: () => import('../pages/home'),
   path: '/',
-  routes: []
+  routes: [
+    {
+      type: 'switch',
+      routes: [
+        {
+          type: 'route',
+          path: 'z',
+          component: () => import('../pages/z'),
+          routes: [
+            {
+              type: 'switch',
+              routes: [
+                {
+                  type: 'route',
+                  path: 'b',
+                  component: () => import('../pages/z/b'),
+                  routes: [
+                    {
+                      type: 'switch',
+                      routes: [
+                        {
+                          type: 'route',
+                          path: 'myFirst',
+                          component: () => import('../pages/z/b/myFirst'),
+                          routes: [
+                            {
+                              type: 'switch',
+                              routes: [
+                                {
+                                  type: 'route',
+                                  path: '3',
+                                  component: () =>
+                                    import('../pages/z/b/myFirst/3'),
+                                  routes: [
+                                    {
+                                      type: 'switch',
+                                      routes: [
+                                        {
+                                          type: 'route',
+                                          path: '4',
+                                          component: () =>
+                                            import('../pages/z/b/myFirst/3/4'),
+                                          routes: [
+                                            {
+                                              type: 'switch',
+                                              routes: [
+                                                {
+                                                  type: 'route',
+                                                  path: '5',
+                                                  component: () =>
+                                                    import(
+                                                      '../pages/z/b/myFirst/3/4/5'
+                                                    ),
+                                                  routes: [
+                                                    {
+                                                      type: 'switch',
+                                                      routes: [
+                                                        {
+                                                          type: 'route',
+                                                          path: '6',
+                                                          component: () =>
+                                                            import(
+                                                              '../pages/z/b/myFirst/3/4/5/6'
+                                                            ),
+                                                          routes: []
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
 };
 export default route;

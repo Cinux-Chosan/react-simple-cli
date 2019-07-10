@@ -3,16 +3,26 @@ const slash = require('slash')
 const traverse = require('@babel/traverse').default
 const generator = require('@babel/generator').default
 const t = require('@babel/types')
-const { parseCode, compileToDest } = require('../utils')
+const { parseCode, compileToDest, logger } = require('../utils')
 const { createRouteNode } = require('./route.util')
 
 module.exports = class RouteProcessor {
     constructor(code, argv) {
         this.g = generator
+        this.cliConfig = {}
         this.code = code
         this.argv = argv
+        this._initConfig()
         this._parse()
         this._walk()
+    }
+
+    _initConfig() {
+        try {
+            this.cliConfig = require(path.resolve(process.cwd(), './.cli.config'))
+        } catch (error) {
+            // 没有配置文件
+        }
     }
 
     // 将代码转成 ast
@@ -120,7 +130,8 @@ module.exports = class RouteProcessor {
         return routes.value.elements
     }
 
-    _getSubSwitchOrRoot(node) {
+    // 获取子路由中的 path === '/' 或者 type === 'switch'
+    _getSubRootOrSwitch(node) {
         const nodeType = this._getNodeType(node)
         const routes = this._getRoutes(node)
         switch (nodeType) {
@@ -141,19 +152,21 @@ module.exports = class RouteProcessor {
         return node.properties.find(prop => prop.key.name === propName)
     }
 
-    _createRouteAssets(assetsPath, options) {
+    async _createRouteAssets(assetsPath, options) {
         const argv = { ...this.argv, ...options }
-        compileToDest('component.hbs', argv, path.resolve(assetsPath, 'index.jsx'))
-        compileToDest('reducer.hbs', argv, path.resolve(assetsPath, 'reducer.js'))
-        compileToDest('saga.hbs', argv, path.resolve(assetsPath, 'saga.js'))
-        compileToDest('style.hbs', argv, path.resolve(assetsPath, 'style.less'))
-        compileToDest('action.types.hbs', argv, path.resolve(assetsPath, 'action.types.js'))
+        await Promise.all([
+            compileToDest('component.hbs', argv, path.resolve(assetsPath, 'index.jsx')),
+            compileToDest('reducer.hbs', argv, path.resolve(assetsPath, 'reducer.js')),
+            compileToDest('saga.hbs', argv, path.resolve(assetsPath, 'saga.js')),
+            compileToDest('style.hbs', argv, path.resolve(assetsPath, 'style.less')),
+            compileToDest('action.types.hbs', argv, path.resolve(assetsPath, 'action.types.js')),
+        ])
+        logger.info(`${path.resolve(assetsPath, 'index.jsx')} 创建完成，ctrl + click 点击前往!`)
     }
-
 
     _addNodeToSwitch(parentNode, node) {
         // 查找 switch 节点
-        let switchNode = this._getSubSwitchOrRoot(parentNode)
+        let switchNode = this._getSubRootOrSwitch(parentNode)
         if (!switchNode) {
             switchNode = createRouteNode('switch')
             const parentRoutesNode = this._getRoutes(parentNode)
@@ -165,12 +178,13 @@ module.exports = class RouteProcessor {
 
     _generateRoutesAndAssets(rootNode, parentPath, routePathName) {
         // 创建 pages 目录中的资源文件，可抽成方法，供 label 处使用
-        const pageRootPath = './src/pages'
-        const routeMapRootPath = './src/routes'
-        const rel = path.relative(routeMapRootPath, pageRootPath)
-        const assetsPath = path.join(pageRootPath, parentPath, routePathName)
+        const { indexDirName = '' } = this.cliConfig
+        const pageRootDir = './src/pages'
+        const routeConfigDir = './src/routes'
+        const rel = path.relative(routeConfigDir, pageRootDir)
+        const assetsPath = path.join(pageRootDir, parentPath, routePathName, indexDirName)
         this._createRouteAssets(assetsPath, { name: routePathName })
-        const parentRouteNode = createRouteNode('route', { assetsPath: slash(path.join(rel, parentPath, routePathName)), path: routePathName })
+        const parentRouteNode = createRouteNode('route', { assetsPath: slash(path.join(rel, parentPath, routePathName, indexDirName)), path: routePathName })
         this._addNodeToSwitch(rootNode, parentRouteNode)
         return parentRouteNode
     }

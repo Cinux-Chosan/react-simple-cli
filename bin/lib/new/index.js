@@ -1,6 +1,6 @@
 const childProcess = require('child_process')
 const fs = require('fs-extra')
-const { parseCode, startOra, logger } = require('../utils')
+const { parseCode, Ora, logger } = require('../utils')
 const traverse = require('@babel/traverse').default
 const generator = require('@babel/generator').default
 const t = require('@babel/types')
@@ -12,16 +12,16 @@ module.exports = function (argv) {
     if (fs.pathExistsSync(path.resolve(dest))) {
         return logger.error('无法初始化项目，目录已存在！')
     }
-    const startCloneOra = logger.info('项目初始化中，请稍等...')
+    const startCloneOra = new Ora('项目初始化中，请稍等...')
     const cp = childProcess.spawn('git', ['clone', 'git@github.com:Cinux-Chosan/simple-cli-app.git', dest])
     cp.on('exit', async (code) => {
         if (code) {
             fs.removeSync(path.resolve(dest))
-            logger.error(`初始化项目失败，错误代码: ${code}`)
+            startCloneOra.error(`初始化项目失败，错误代码: ${code}`)
         } else {
             updateProjName(dest)
             await initGit(dest)
-            startCloneOra.succeed('项目初始化成功')
+            startCloneOra.succeed(`项目初始化成功，执行 cd ${dest}; npm i`)
         }
     })
 }

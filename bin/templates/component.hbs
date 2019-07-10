@@ -3,7 +3,11 @@ import React, { Component } from 'react'
 {{!-- 如果需要 redux connect，则引入 --}}
 import { connect } from 'react-redux'
 {{/if}}
+{{#if isComponent}}
+import styles from './style.less'
+{{else}}
 // import styles from './style.less'
+{{/if}}
 
 {{#if connect}}
 export class {{capitalize (getPathName name)}} extends Component {
@@ -12,7 +16,15 @@ export class {{capitalize (getPathName name)}} extends Component {
     }
 
     render() {
+        {{#if isComponent}}
+        return (
+            <div className={styles.root}>
+
+            </div>
+        )
+        {{else}}
         return <>{this.props.yield}</>
+        {{/if}}
     }
 }
 
@@ -37,7 +49,15 @@ export default class extends Component {
     }
 
     render() {
+        {{#if isComponent}}
+        return (
+            <div className={styles.root}>
+
+            </div>
+        )
+        {{else}}
         return <>{this.props.yield}</>
+        {{/if}}
     }
 }
 {{/if}}

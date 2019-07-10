@@ -1,20 +1,26 @@
-const { compileToDest, textColor } = require('../utils')
+const { compileToDest, TextColor } = require('../utils')
 const path = require('path')
 const ora = require('ora')
 
 module.exports = async function (argv) {
     const compName = argv.name
-    const gComponentOra = ora(textColor.info(`正在创建组件 ${compName}，请稍等...`)).start()
-    const destDir = `src/components/${compName}/`
+    const args = { ...argv, isComponent: true }
+    const gComponentOra = ora(TextColor.info(`正在创建组件 ${compName}，请稍等...`)).start()
+    let destDir = ''
+    if (compName.split('/').length > 1) {
+        destDir = path.resolve('src/pages', compName)
+    } else {
+        destDir = path.resolve('src/components', compName)
+    }
     try {
         await Promise.all([
-            compileToDest('component.hbs', argv, path.resolve(destDir, 'index.jsx')),
-            compileToDest('style.hbs', argv, path.resolve(destDir, 'style.less'))
+            compileToDest('component.hbs', args, path.resolve(destDir, 'index.jsx')),
+            compileToDest('style.hbs', args, path.resolve(destDir, 'style.less'))
         ])
-        gComponentOra.succeed(textColor.succeed(`组件 ${compName} 创建成功！`))
+        gComponentOra.succeed(TextColor.succeed(`组件 ${compName} 创建成功！`))
     } catch (error) {
         removePath(path.resolve(destDir, 'index.jsx'))
         removePath(path.resolve(destDir, 'style.less'))
-        gComponentOra.fail(textColor.error(`创建组件失败，已回退！`))
+        gComponentOra.fail(TextColor.error(`创建组件失败，已回退！`))
     }
 }
