@@ -68,7 +68,7 @@
             "args": [
                 "g",
                 "route",
-                "--name=z/b/myFirst/3",
+                "z/b/myFirst/3",
                 "--connect=true"
             ]
         }

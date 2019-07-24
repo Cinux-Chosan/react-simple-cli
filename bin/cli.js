@@ -17,6 +17,7 @@ function checkCwd() {
 }
 
 function run() {
+    argv.name = argv.name || argv._[2]
     switch (cmd) {
         case 'g':
         case 'generate':

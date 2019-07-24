@@ -45,50 +45,7 @@ const route = {
                                   path: '3',
                                   component: () =>
                                     import('../pages/z/b/myFirst/3'),
-                                  routes: [
-                                    {
-                                      type: 'switch',
-                                      routes: [
-                                        {
-                                          type: 'route',
-                                          path: '4',
-                                          component: () =>
-                                            import('../pages/z/b/myFirst/3/4'),
-                                          routes: [
-                                            {
-                                              type: 'switch',
-                                              routes: [
-                                                {
-                                                  type: 'route',
-                                                  path: '5',
-                                                  component: () =>
-                                                    import(
-                                                      '../pages/z/b/myFirst/3/4/5'
-                                                    ),
-                                                  routes: [
-                                                    {
-                                                      type: 'switch',
-                                                      routes: [
-                                                        {
-                                                          type: 'route',
-                                                          path: '6',
-                                                          component: () =>
-                                                            import(
-                                                              '../pages/z/b/myFirst/3/4/5/6'
-                                                            ),
-                                                          routes: []
-                                                        }
-                                                      ]
-                                                    }
-                                                  ]
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    }
-                                  ]
+                                  routes: []
                                 }
                               ]
                             }
