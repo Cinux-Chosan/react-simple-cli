@@ -8,7 +8,7 @@ This is a simple react cli.
 
 ## Usage
 
-then you can create a react project:
+Now you can create a react project:
 
 1、`ssr new react-proj`
 
@@ -30,7 +30,9 @@ this will create a recursive route.
 
 `ssr g comp --name=operation/steps/one/dialog`
 
-which is alias `ssr g component --name=operation/steps/one/dialog`
+which is an alias of 
+
+`ssr g component --name=operation/steps/one/dialog`
 
 this will just create a component under path: `operation/steps/one/`
 
