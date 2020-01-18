@@ -8,7 +8,7 @@ This is a simple react cli.
 
 ## Usage
 
-Now you can create a react project:
+Now you can create a react project with `ssr` command:
 
 1、`ssr new react-proj`
 
