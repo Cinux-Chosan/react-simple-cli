@@ -10,7 +10,6 @@ Handlebars.registerHelper('capitalize', (str) => {
 Handlebars.registerHelper('getPathName', (str) => {
     const paths = path.normalize(str).split(path.sep)
     let last = paths[paths.length - 1]
-    console.log('last',last)
     last = last.match(/^[^a-zA-Z_$]+/) ? `Comp_${last}` : last
     return paths ? last : 'InvalidName'
 })
